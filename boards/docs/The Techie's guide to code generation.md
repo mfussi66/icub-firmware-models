@@ -194,7 +194,7 @@ In this section, it is useful to tick the setting *Use the same custom code sett
 - [x] absolute time
 - [ ] non-finite numbers -> add it if you expect signals to reach `inf`
 - [ ] complex numbers
-- [ ] variable-size signals
+- [x] variable-size signals -> add it if you expect to use dynamic memory allocation for resizeable vectors
 
 **Code interface > Code interface packaging**:
 
