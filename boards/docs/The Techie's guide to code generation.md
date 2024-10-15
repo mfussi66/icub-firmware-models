@@ -67,13 +67,20 @@ The AMCx boards have ARM Cortex M processors, which BSP can be found here: [clic
 ### Operating System
 
 The operating system (OS) in which Matlab is installed can affect the code generation, depending on the target system.
-Since we are targeting a specific microcontroller architecture with proper BSP, we won't be affected.
+Since we are targeting a specific microcontroller architecture with dedicated BSP, we won't be affected.
 
-However, if a developer wants to target a Linux platform, it is not suggested to do so on a Windows host. This is because the Embedded Coder will search for the host OS libraries instead of the target ones by default, when using features like mutexes.
+However, if a developer wants to target a e.g. Linux distribution, it is **not** suggested to generate code on a different platform. This is caused by the Embedded Coder searching for host OS libraries instead of the target ones by default. It can happen when using features like mutexes.
 
 ### Compiler
 
-TBD
+To enable code generation, a compiler is needed. Simulink will scan the programs $PATH for supported compilers, to help with selection. At the moment of writing this document, no formal analysis has been performed regarding which compiler is preferrable.
+
+This is because while we generate code in Simulink, we copy it and compile it in the ARM Keil IDE, using the integrated ARM Clang compiler.
+
+Nonetheless, to enable code generation, it is possible to install for example one of the following:
+
+- The Visual Studio compiler, by downloading Microsoft Visual Studio
+- The ARM Clang compiler, by downloading ARM Keil v5.39.
 
 ## Understanding model configuration parameters
 
@@ -146,8 +153,10 @@ For our use case, we don't target a specific hardware board.
 ![](assets/par_code.png)
 
 **Target selection > System target file**: `ert.tlc`, to use the Embedded Coder generation rules.
+
 **Shared coder dictionary**: It could be useful to use a Simulink dictonary to store codegen configurations, though not mandatory.
-**Language/Language Standard**: at the moment of writing this document, the language standard used for code generation is C++03, in accordance to the available features of the ARMCLANG compiler.
+
+**Language/Language Standard**: at the moment of writing this document, the language standard used for code generation is C++03, in accordance to the available features of the ARMCLANG compiler that comes with ARM Keil.
 
   - [x] **Generate code only**: ticked to avoid the compilation step by Makefile execution. Compilation occurs in the ARM Keil IDE.
 
@@ -155,13 +164,15 @@ For our use case, we don't target a specific hardware board.
 
 **Build process > Build Configuration**: Set it to *Faster Runs* to select the available optimization options of the selected compiler.
 
+
+
 ### Optimization
 
 ![](assets/par_opt.png)
 
-**Default parameter behavior**: Set it to *Inlined* to allow parameters to be replaced by their respective constant values, so that the compiler will be able to perform optimizations. The *Tunable* setting will add more flexibility of the generated code, sacrificing performance.
+**Default parameter behavior**: Set it to *Inlined* to allow parameters to be replaced by their respective constant values, so that the code does not allocate memory to allocate them. The *Tunable* setting will instead create variables for tunable parameters present in the model, at the cost of more memory usage.
 
-**Pass reusable subsystem outputs as**: *Structure reference* to make the code more readable.
+**Pass reusable subsystem outputs as**: *Structure reference* to make the code more convenient to use, at the cost of using more global memory. The option *individual arguments* passes each reusable subsystem output argument as an address of a local, instead of as a pointer to an area of global memory containing the output arguments. 
 
 - [x] **Data initialization > Remove...**: You can tick both options to remove the zero initialization of both internal variables and IO ports.
   
@@ -177,32 +188,47 @@ It is very useful to generate a summary report of the code generation process, e
 
 To do so, tick *Create code generation report*, and *Summarize which block triggered code replacement*.
 
-
 ### Custom Code
 
 ![](assets/par_cust.png)
 
-In this section, it is useful to tick the setting *Use the same custom code settings as Simulation Target*.
+In this section, it is useful to tick the setting *Use the same custom code settings as Simulation Target*. See the [Simulation Target](#simulation-target) section for details.
 
 ### Interface
 
 ![](assets/par_iface.png)
 
-**Support**:
+In this section you will be able to set up the interface of the generated code, especially the way it can be called.
+
+Additionally, in **Software environment > Code replacement libraries**, it is possible to select which replacement libraries to apply. For more details, refer to the dedicated section.
+
+We will now focus on the visible settings.
+
+**Software enviroment > Support**:
 
 - [x] floating-point numbers
 - [x] absolute time
-- [ ] non-finite numbers -> add it if you expect signals to reach `inf`
+- [ ] non-finite numbers -> tick it if you expect signals to reach `inf`
 - [ ] complex numbers
-- [x] variable-size signals -> add it if you expect to use dynamic memory allocation for resizeable vectors
+- [ ] variable-size signals -> tick it if you expect data containers to change in size at runtime
 
 **Code interface > Code interface packaging**:
 
-- *Nonreusable function*
-- *Reusable function*
-- *C++ class*
+- *Nonreusable function*: selecting this option generates code which entry point functions directly access the data structure; this option is suggested for top-level architectural models
+- *Reusable function*: selecting this option generates re-entrant multi-instance code; this option is needed for Simulink models that need to be referenced, especially if they need to be wrapped in special blocks (e.g. a *For Each Subsystem*)
+- *C++ class*: this options generates a class with constructor, destructor, inputs setter and outputs getter; this option is available only if the C++ language is selected as target
 
 #### Code replacement libraries
+Code replacement libraries (CRL) are sets of functions that can be used to replace native C/C++ operations, to leverage the target hardware or respect specific requirements.
+
+When clicking on the *Select* button, the following window will pop up.
+![](assets/crl.png)
+On the left the available but unused libraries are listed, while on the right we can see the ones selected for usage, with decreasing priority order.
+
+If the BSP for the Cortex-M was installed, it will appear here as available. Its CRL includes functions such as the trigonometric ones, squared root, even clark-parke transforms.
+
+It is possible to define a custom CRL, such as the iCubTech one. 
+The iCubTech library replaces native mutex calls with custom functions that trigger interrupts. More information on how to create a custom library can be found in the [Matlab documentation](https://it.mathworks.com/help/ecoder/ug/quick-start-library-development-sc.html).
 
 ## Modelling guidelines
 
