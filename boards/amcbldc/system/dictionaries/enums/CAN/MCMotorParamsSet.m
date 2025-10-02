@@ -1,14 +1,11 @@
 % Copyright (C) 2022 Fondazione Istitito Italiano di Tecnologia (IIT)
 % All Rights Reserved.
 
-classdef MCOPC < uint8
+classdef MCMotorParamsSet < uint8
     enumeration
-        Set_Parameter(0x01)
-        Set_Control_Mode(0x09)
-        Set_Current_Limit(0x48)
-        Set_Current_PID(0x65)
-        Set_Velocity_PID(0x69)
-        Set_Motor_Config(0x77)
+        Kbemf(0x01)
+        hall(0x02)
+        elect_vmax(0x03)
     end
     methods (Static = true)
         function retVal = addClassNameToEnumNames()
