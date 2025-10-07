@@ -3,9 +3,10 @@
 
 classdef MCMotorParamsSet < uint8
     enumeration
-        Kbemf(0x01)
-        hall(0x02)
-        elect_vmax(0x03)
+        None       (0x00)
+        Kbemf      (0x01)
+        hall       (0x02)
+        elect_vmax (0x03)
     end
     methods (Static = true)
         function retVal = addClassNameToEnumNames()
