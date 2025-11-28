@@ -36,7 +36,7 @@ The document targets the **AMCx family** of embedded boards.
   - [Modelling tips and suggestions](#modelling-tips-and-suggestions)
     - [Dictionaries and architectural data](#dictionaries-and-architectural-data)
     - [Simulink models](#simulink-models)
-    - [Stateflow charts](#stateflow-charts)
+    - [System Composer](#system-composer)
 
 -----
 
@@ -288,12 +288,14 @@ for more compactness and maintainability, prefer Stateflow charts and properly a
 
 ![](assets/sim_if_chart.png)
 
-- Use iteration blocks like *do-while* and *for-each* sparingly: they can be very useful when it is necessary to wrap complex logic and repeat the operations for each input element (e.g. multiple motion controller instances); in fact, most computational blocks support matrix operations, and can apply the operations to each input element automatically; just be careful about the dimension along which the operation is performed, or you might end up with unexpected results
+- Use iteration blocks like *do-while* and *for-each* sparingly: they can be very useful when it is necessary to wrap complex logic and repeat the operations for each input element (e.g. multiple motion controller instances); in fact, most computational blocks support matrix operations, and can apply the operations to each input element automatically; just be careful about the dimension along which the operation is performed, or you might end up with unexpected results (see fro example the documentation on [Known for-each subsystem limitations](https://it.mathworks.com/help/simulink/ug/repeat-an-algorithm-using-a-for-each-subsystem.html#mw_76ab6d1d-3ef6-4c2e-9438-e226c070ddc0))
+
+![](assets/sim_for.png)
 
 - If you want to store a state within a Simulink model, you can you do so through *Data Store* blocks, pairing the *Read* with the *Write* and the *Memory*
 
 ![](assets/sim_data_store.png)
 
-for more complex state management, consider using Stateflow charts.
+for more complex state management, consider using Stateflow charts. Note that states are created automatically depending on the structure of the model, especially if Delay blocks are involved.
 
-### Stateflow charts
+### System Composer
