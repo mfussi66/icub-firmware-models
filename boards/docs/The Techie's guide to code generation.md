@@ -298,4 +298,17 @@ for more compactness and maintainability, prefer Stateflow charts and properly a
 
 for more complex state management, consider using Stateflow charts. Note that states are created automatically depending on the structure of the model, especially if Delay blocks are involved.
 
-### System Composer
+## System Composer
+
+The Matlab System Composer is a toolbox that allows the creation of so-called *Architectural models* to support Model-Based System Engineering (MBSE) workflows. Within them, you can design Simulink models that embed project requirements, sequence diagrams, and so on.
+
+The two main categories of architectures are:
+
+- Architectural models
+- Software architectural models
+
+### Architectural models
+
+Architectural models can be used to design physical, logical, and functional aspects of a physical system.
+
+Usually, the physical architecture represents how each physical component is connected to the others, the functional architecture represents how the behaviours of the system interact with each other, and the physical architecture implements the functionalities and systems to be controlled.
